@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Sidebar } from './Sidebar';
 
+// TODO: Возможно, такой код увеличивает бандл, надо подробнее изучить, почему
 export function AppLayout() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
