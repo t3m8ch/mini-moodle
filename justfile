@@ -12,3 +12,10 @@ format-frontend:
 
 lint-frontend:
     cd mini-moodle-frontend && bun run lint
+
+zip:
+    zip -r mini-moodle.zip . \
+        -x "mini-moodle-frontend/node_modules/*" \
+           "mini-moodle-frontend/dist/*" \
+           "mini-moodle-backend/target/*" \
+           ".git/*"
