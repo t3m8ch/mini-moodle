@@ -8,6 +8,7 @@ export const assignments: Assignment[] = [
       'Реализуйте небольшое CLI-приложение, демонстрирующее правила заимствования.',
     deadline: '2026-03-20',
     courseId: 'course_1',
+    courseTitle: 'Программирование на Rust',
     status: 'in_progress',
   },
   {
@@ -17,6 +18,7 @@ export const assignments: Assignment[] = [
       'Создайте вложенные маршруты с общим макетом и защитой переходов.',
     deadline: '2026-03-25',
     courseId: 'course_2',
+    courseTitle: 'Архитектура фронтенда',
     status: 'not_started',
   },
   {
@@ -26,6 +28,7 @@ export const assignments: Assignment[] = [
       'Напишите запросы с объединениями, агрегированием и фильтрацией по дате.',
     deadline: '2026-03-28',
     courseId: 'course_3',
+    courseTitle: 'Базы данных: базовый курс',
     status: 'submitted',
   },
   {
@@ -34,6 +37,7 @@ export const assignments: Assignment[] = [
     description: 'Подготовьте краткий отчёт о безопасных абстракциях в Rust.',
     deadline: '2026-03-14',
     courseId: 'course_1',
+    courseTitle: 'Программирование на Rust',
     status: 'graded',
   },
 ];

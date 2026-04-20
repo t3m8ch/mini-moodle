@@ -1,5 +1,5 @@
-import type { FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, type FormEvent } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import {
   Card,
@@ -9,13 +9,38 @@ import {
   CardTitle,
 } from '../components/ui/card';
 import { Input } from '../components/ui/input';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { registerUser } from '../store/thunks';
 
 export function RegisterPage() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const userStatus = useAppSelector((state) => state.user.status);
+  const authRequestStatus = useAppSelector(
+    (state) => state.user.authRequestStatus,
+  );
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const [formState, setFormState] = useState({
+    firstName: '',
+    lastName: '',
+    patronymic: '',
+    email: '',
+    password: '',
+  });
+
+  if (userStatus === 'authenticated') {
+    return <Navigate replace to="/dashboard" />;
+  }
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate('/dashboard');
+
+    try {
+      await dispatch(registerUser(formState)).unwrap();
+      navigate('/dashboard', { replace: true });
+    } catch {
+      // Global error UI is rendered by CommonWrapper.
+    }
   };
 
   return (
@@ -30,11 +55,61 @@ export function RegisterPage() {
             <div className="space-y-2">
               <label
                 className="text-sm font-medium text-slate-700"
-                htmlFor="name"
+                htmlFor="firstName"
               >
                 Имя
               </label>
-              <Input id="name" placeholder="Алекс Картер" required />
+              <Input
+                id="firstName"
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    firstName: event.target.value,
+                  }))
+                }
+                placeholder="Алекс"
+                required
+                value={formState.firstName}
+              />
+            </div>
+            <div className="space-y-2">
+              <label
+                className="text-sm font-medium text-slate-700"
+                htmlFor="lastName"
+              >
+                Фамилия
+              </label>
+              <Input
+                id="lastName"
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    lastName: event.target.value,
+                  }))
+                }
+                placeholder="Картер"
+                required
+                value={formState.lastName}
+              />
+            </div>
+            <div className="space-y-2">
+              <label
+                className="text-sm font-medium text-slate-700"
+                htmlFor="patronymic"
+              >
+                Отчество
+              </label>
+              <Input
+                id="patronymic"
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    patronymic: event.target.value,
+                  }))
+                }
+                placeholder="Иванович"
+                value={formState.patronymic}
+              />
             </div>
             <div className="space-y-2">
               <label
@@ -45,9 +120,16 @@ export function RegisterPage() {
               </label>
               <Input
                 id="email"
-                type="email"
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    email: event.target.value,
+                  }))
+                }
                 placeholder="student@example.com"
                 required
+                type="email"
+                value={formState.email}
               />
             </div>
             <div className="space-y-2">
@@ -59,13 +141,26 @@ export function RegisterPage() {
               </label>
               <Input
                 id="password"
-                type="password"
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    password: event.target.value,
+                  }))
+                }
                 placeholder="••••••••"
                 required
+                type="password"
+                value={formState.password}
               />
             </div>
-            <Button className="w-full" type="submit">
-              Создать аккаунт
+            <Button
+              className="w-full"
+              disabled={authRequestStatus === 'loading'}
+              type="submit"
+            >
+              {authRequestStatus === 'loading'
+                ? 'Создаём аккаунт…'
+                : 'Создать аккаунт'}
             </Button>
           </form>
 

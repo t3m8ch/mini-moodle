@@ -1,5 +1,5 @@
-import type { FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, type FormEvent } from 'react';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import {
   Card,
@@ -9,13 +9,40 @@ import {
   CardTitle,
 } from '../components/ui/card';
 import { Input } from '../components/ui/input';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { loginUser } from '../store/thunks';
 
 export function LoginPage() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const userStatus = useAppSelector((state) => state.user.status);
+  const authRequestStatus = useAppSelector(
+    (state) => state.user.authRequestStatus,
+  );
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const [formState, setFormState] = useState({
+    email: 'student@example.com',
+    password: 'password123',
+  });
+
+  if (userStatus === 'authenticated') {
+    const from = (location.state as { from?: { pathname?: string } } | null)
+      ?.from?.pathname;
+    return <Navigate replace to={from ?? '/dashboard'} />;
+  }
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    navigate('/dashboard');
+
+    try {
+      await dispatch(loginUser(formState)).unwrap();
+      const from = (location.state as { from?: { pathname?: string } } | null)
+        ?.from?.pathname;
+      navigate(from ?? '/dashboard', { replace: true });
+    } catch {
+      // Global error UI is rendered by CommonWrapper.
+    }
   };
 
   return (
@@ -24,7 +51,7 @@ export function LoginPage() {
         <CardHeader>
           <CardTitle>Вход</CardTitle>
           <CardDescription>
-            Войдите, чтобы получить доступ к вашим курсам и заданиям.
+            Войдите, чтобы получить доступ к курсам, профилю и заданиям.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -38,9 +65,16 @@ export function LoginPage() {
               </label>
               <Input
                 id="email"
-                type="email"
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    email: event.target.value,
+                  }))
+                }
                 placeholder="student@example.com"
                 required
+                type="email"
+                value={formState.email}
               />
             </div>
             <div className="space-y-2">
@@ -52,13 +86,24 @@ export function LoginPage() {
               </label>
               <Input
                 id="password"
-                type="password"
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    password: event.target.value,
+                  }))
+                }
                 placeholder="••••••••"
                 required
+                type="password"
+                value={formState.password}
               />
             </div>
-            <Button className="w-full" type="submit">
-              Войти
+            <Button
+              className="w-full"
+              disabled={authRequestStatus === 'loading'}
+              type="submit"
+            >
+              {authRequestStatus === 'loading' ? 'Входим…' : 'Войти'}
             </Button>
           </form>
 

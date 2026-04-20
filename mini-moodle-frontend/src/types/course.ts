@@ -5,3 +5,8 @@ export interface Course {
   teacherName: string;
   studentsCount: number;
 }
+
+export interface CourseDetail {
+  course: Course;
+  assignments: import('./assignment').Assignment[];
+}

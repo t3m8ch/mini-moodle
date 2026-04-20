@@ -9,18 +9,28 @@ export function LandingPage() {
           mini-Moodle
         </h1>
         <p className="mt-4 max-w-2xl text-base text-slate-600 sm:text-lg">
-          Легкое учебное пространство для просмотра курсов, проверки заданий и
-          отслеживания прогресса в обучении.
+          Учебное пространство с курсами, заданиями, прогрессом и защищённым
+          кабинетом пользователя.
         </p>
+
+        <div className="mt-6 rounded-2xl border border-sky-100 bg-white/80 px-5 py-4 text-left shadow-sm backdrop-blur">
+          <p className="text-sm font-semibold text-slate-900">
+            Демо-аккаунт для проверки
+          </p>
+          <p className="mt-2 text-sm text-slate-600">
+            Email: <span className="font-medium">student@example.com</span>
+          </p>
+          <p className="text-sm text-slate-600">
+            Пароль: <span className="font-medium">password123</span>
+          </p>
+        </div>
+
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button asChild>
             <Link to="/login">Войти</Link>
           </Button>
           <Button asChild variant="secondary">
             <Link to="/register">Регистрация</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link to="/dashboard">Открыть демо-кабинет</Link>
           </Button>
         </div>
       </div>

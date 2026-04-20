@@ -1,8 +1,10 @@
 use std::sync::Arc;
 
-use crate::config::Config;
+use parking_lot::RwLock;
+
+use crate::domain::AppStore;
 
 #[derive(Clone, Debug)]
 pub struct AppState {
-    pub config: Arc<Config>,
+    pub store: Arc<RwLock<AppStore>>,
 }
