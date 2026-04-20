@@ -63,8 +63,7 @@ export function AssignmentPage() {
               {course?.title ?? 'Неизвестный курс'}
             </p>
             <p>
-              <span className="font-medium">Срок:</span>{' '}
-              {assignment.deadline}
+              <span className="font-medium">Срок:</span> {assignment.deadline}
             </p>
           </div>
 

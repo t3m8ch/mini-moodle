@@ -1,45 +1,66 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { AppLayout } from '../components/layout/AppLayout';
-import { AssignmentPage } from '../pages/AssignmentPage';
-import { CoursePage } from '../pages/CoursePage';
-import { DashboardPage } from '../pages/DashboardPage';
-import { LandingPage } from '../pages/LandingPage';
-import { LoginPage } from '../pages/LoginPage';
-import { NotFoundPage } from '../pages/NotFoundPage';
-import { RegisterPage } from '../pages/RegisterPage';
+import { RootLayout } from './RootLayout';
 
 export const appRouter = createBrowserRouter([
   {
-    path: '/',
-    element: <LandingPage />,
-  },
-  {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/register',
-    element: <RegisterPage />,
-  },
-  {
-    element: <AppLayout />,
+    Component: RootLayout,
     children: [
       {
-        path: '/dashboard',
-        element: <DashboardPage />,
+        path: '/',
+        lazy: {
+          Component: async () =>
+            (await import('../pages/LandingPage')).LandingPage,
+        },
       },
       {
-        path: '/courses/:courseId',
-        element: <CoursePage />,
+        path: '/login',
+        lazy: {
+          Component: async () => (await import('../pages/LoginPage')).LoginPage,
+        },
       },
       {
-        path: '/assignments/:assignmentId',
-        element: <AssignmentPage />,
+        path: '/register',
+        lazy: {
+          Component: async () =>
+            (await import('../pages/RegisterPage')).RegisterPage,
+        },
+      },
+      {
+        lazy: {
+          Component: async () =>
+            (await import('../components/layout/AppLayout')).AppLayout,
+        },
+        children: [
+          {
+            path: '/dashboard',
+            lazy: {
+              Component: async () =>
+                (await import('../pages/DashboardPage')).DashboardPage,
+            },
+          },
+          {
+            path: '/courses/:courseId',
+            lazy: {
+              Component: async () =>
+                (await import('../pages/CoursePage')).CoursePage,
+            },
+          },
+          {
+            path: '/assignments/:assignmentId',
+            lazy: {
+              Component: async () =>
+                (await import('../pages/AssignmentPage')).AssignmentPage,
+            },
+          },
+        ],
+      },
+      {
+        path: '*',
+        lazy: {
+          Component: async () =>
+            (await import('../pages/NotFoundPage')).NotFoundPage,
+        },
       },
     ],
-  },
-  {
-    path: '*',
-    element: <NotFoundPage />,
   },
 ]);
