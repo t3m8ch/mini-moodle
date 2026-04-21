@@ -9,12 +9,13 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { selectHeaderUser } from '../../store/selectors';
 import { logoutUser } from '../../store/thunks';
 
 export function AppHeader() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const currentUser = useAppSelector((state) => state.user.currentUser);
+  const currentUser = useAppSelector(selectHeaderUser);
 
   const handleLogout = async () => {
     try {
@@ -34,16 +35,11 @@ export function AppHeader() {
           <DropdownMenuTrigger asChild>
             <button className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-slate-100">
               <Avatar className="h-8 w-8">
-                <AvatarImage
-                  alt={currentUser?.fullName ?? 'Пользователь'}
-                  src=""
-                />
-                <AvatarFallback>
-                  {currentUser?.avatarFallback ?? 'MM'}
-                </AvatarFallback>
+                <AvatarImage alt={currentUser.fullName} src="" />
+                <AvatarFallback>{currentUser.avatarFallback}</AvatarFallback>
               </Avatar>
               <span className="hidden text-sm font-medium text-slate-700 sm:inline">
-                {currentUser?.fullName ?? 'Пользователь'}
+                {currentUser.fullName}
               </span>
               <ChevronDown className="h-4 w-4 text-slate-500" />
             </button>

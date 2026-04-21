@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { shallowEqual } from 'react-redux';
 import type { User } from '../types/user';
 import {
   fetchCurrentUser,
@@ -22,6 +23,10 @@ const initialState: UserState = {
   status: 'idle',
   authRequestStatus: 'idle',
 };
+
+function areUsersEqual(left: User | null, right: User) {
+  return left !== null && shallowEqual(left, right);
+}
 
 export const userSlice = createSlice({
   name: 'user',
@@ -65,12 +70,16 @@ export const userSlice = createSlice({
         state.status = 'guest';
       })
       .addCase(saveProfileData.fulfilled, (state, action) => {
-        state.currentUser = {
+        const nextUser: User = {
           id: action.payload.id,
           email: action.payload.email,
           fullName: action.payload.fullName,
           avatarFallback: action.payload.avatarFallback,
         };
+
+        if (!areUsersEqual(state.currentUser, nextUser)) {
+          state.currentUser = nextUser;
+        }
       })
       .addCase(logoutUser.fulfilled, () => initialState);
   },

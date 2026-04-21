@@ -10,13 +10,20 @@ import {
   CardTitle,
 } from '../components/ui/card';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
+import {
+  selectDashboard,
+  selectDashboardError,
+  selectDashboardStatus,
+  selectDashboardSummaryCards,
+} from '../store/selectors';
 import { fetchDashboardData } from '../store/thunks';
 
 export function DashboardPage() {
   const dispatch = useAppDispatch();
-  const dashboard = useAppSelector((state) => state.courses.dashboard);
-  const status = useAppSelector((state) => state.courses.dashboardStatus);
-  const error = useAppSelector((state) => state.courses.dashboardError);
+  const dashboard = useAppSelector(selectDashboard);
+  const status = useAppSelector(selectDashboardStatus);
+  const error = useAppSelector(selectDashboardError);
+  const summaryCards = useAppSelector(selectDashboardSummaryCards);
 
   useEffect(() => {
     if (status === 'idle') {
@@ -57,22 +64,13 @@ export function DashboardPage() {
         </header>
 
         <section className="grid gap-4 md:grid-cols-4">
-          <SummaryCard
-            description="Всего заданий"
-            title={String(dashboard.progress.totalAssignments)}
-          />
-          <SummaryCard
-            description="В работе"
-            title={String(dashboard.progress.inProgressCount)}
-          />
-          <SummaryCard
-            description="Отправлено"
-            title={String(dashboard.progress.submittedCount)}
-          />
-          <SummaryCard
-            description="Проверено"
-            title={String(dashboard.progress.gradedCount)}
-          />
+          {summaryCards.map((card) => (
+            <SummaryCard
+              key={card.description}
+              description={card.description}
+              title={card.title}
+            />
+          ))}
         </section>
 
         <section className="space-y-4">

@@ -216,10 +216,16 @@ export const updateAssignmentSubmission = createAppAsyncThunk(
 
 export const deleteAssignmentSubmission = createAppAsyncThunk(
   'assignments/deleteSubmission',
-  async (submissionId: string, { rejectWithValue }) => {
+  async (submissionId: string, { getState, rejectWithValue }) => {
+    const currentAssignment = getState().assignments.currentAssignment;
+
     try {
       await learningApi.deleteSubmission(submissionId);
-      return submissionId;
+      return {
+        submissionId,
+        assignmentId: currentAssignment?.assignment.id ?? null,
+        courseId: currentAssignment?.assignment.courseId ?? null,
+      };
     } catch (error) {
       return rejectWithValue(toApiError(error));
     }

@@ -7,15 +7,15 @@ import {
 import { matchPath, NavLink, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { useAppSelector } from '../../store/hooks';
+import {
+  selectFirstAssignment,
+  selectFirstCourse,
+} from '../../store/selectors';
 
 export function Sidebar() {
   const { pathname } = useLocation();
-  const firstCourse = useAppSelector(
-    (state) => state.courses.dashboard?.courses[0] ?? null,
-  );
-  const firstAssignment = useAppSelector(
-    (state) => state.courses.dashboard?.recentAssignments[0] ?? null,
-  );
+  const firstCourse = useAppSelector(selectFirstCourse);
+  const firstAssignment = useAppSelector(selectFirstAssignment);
 
   const navItems = [
     {
