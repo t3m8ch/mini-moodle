@@ -17,12 +17,17 @@ import {
 } from '../lib/assignmentStatus';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
-  createAssignmentSubmission,
-  deleteAssignmentSubmission,
-  fetchAssignmentDetailData,
-  fetchProgressData,
-  updateAssignmentSubmission,
-} from '../store/thunks';
+  selectCurrentAssignmentDetail,
+  selectCurrentAssignmentError,
+  selectCurrentAssignmentId,
+  selectCurrentAssignmentStatus,
+} from '../store/selectors';
+import {
+  createSubmissionAndRefresh,
+  deleteSubmissionAndRefresh,
+  updateSubmissionAndRefresh,
+} from '../store/learningFlows';
+import { fetchAssignmentDetailData } from '../store/thunks';
 import type { SubmissionStatus } from '../types/assignment';
 
 interface AssignmentDraft {
@@ -34,18 +39,10 @@ interface AssignmentDraft {
 export function AssignmentPage() {
   const { assignmentId } = useParams<{ assignmentId: string }>();
   const dispatch = useAppDispatch();
-  const assignmentDetail = useAppSelector(
-    (state) => state.assignments.currentAssignment,
-  );
-  const status = useAppSelector(
-    (state) => state.assignments.currentAssignmentStatus,
-  );
-  const error = useAppSelector(
-    (state) => state.assignments.currentAssignmentError,
-  );
-  const currentAssignmentId = useAppSelector(
-    (state) => state.assignments.currentAssignmentId,
-  );
+  const assignmentDetail = useAppSelector(selectCurrentAssignmentDetail);
+  const status = useAppSelector(selectCurrentAssignmentStatus);
+  const error = useAppSelector(selectCurrentAssignmentError);
+  const currentAssignmentId = useAppSelector(selectCurrentAssignmentId);
   const isMutating = useAppSelector(
     (state) => state.settings.pendingRequests > 0,
   );
@@ -75,35 +72,37 @@ export function AssignmentPage() {
   }, [assignmentDetail, assignmentId, draft]);
 
   const handleSave = async () => {
-    if (!assignmentId) {
+    if (!assignmentId || !assignmentDetail) {
       return;
     }
 
     try {
       if (assignmentDetail?.submission) {
         await dispatch(
-          updateAssignmentSubmission({
+          updateSubmissionAndRefresh({
+            assignmentId,
+            courseId: assignmentDetail.assignment.courseId,
             submissionId: assignmentDetail.submission.id,
             data: {
               notes: formState.notes,
               status: formState.submissionStatus,
             },
           }),
-        ).unwrap();
+        );
       } else {
         await dispatch(
-          createAssignmentSubmission({
+          createSubmissionAndRefresh({
             assignmentId,
+            courseId: assignmentDetail.assignment.courseId,
             data: {
               notes: formState.notes,
               status: formState.submissionStatus,
             },
           }),
-        ).unwrap();
+        );
       }
 
       setDraft(null);
-      await dispatch(fetchProgressData()).unwrap();
     } catch {
       // Global error UI is rendered by CommonWrapper.
     }
@@ -114,12 +113,17 @@ export function AssignmentPage() {
       return;
     }
 
+    const { assignment, submission } = assignmentDetail;
+
     try {
       await dispatch(
-        deleteAssignmentSubmission(assignmentDetail.submission.id),
-      ).unwrap();
+        deleteSubmissionAndRefresh({
+          assignmentId: assignment.id,
+          courseId: assignment.courseId,
+          submissionId: submission.id,
+        }),
+      );
       setDraft(null);
-      await dispatch(fetchProgressData()).unwrap();
     } catch {
       // Global error UI is rendered by CommonWrapper.
     }

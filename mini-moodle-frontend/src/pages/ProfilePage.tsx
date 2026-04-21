@@ -10,7 +10,8 @@ import {
 } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { fetchProfileData, saveProfileData } from '../store/thunks';
+import { saveProfileAndRefresh } from '../store/learningFlows';
+import { fetchProfileData } from '../store/thunks';
 
 interface ProfileFormState {
   firstName: string;
@@ -48,7 +49,7 @@ export function ProfilePage() {
     event.preventDefault();
 
     try {
-      await dispatch(saveProfileData(formState)).unwrap();
+      await dispatch(saveProfileAndRefresh(formState));
       setDraft(null);
     } catch {
       // Global error UI is rendered by CommonWrapper.

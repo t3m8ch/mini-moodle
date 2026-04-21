@@ -4,17 +4,21 @@ import { AssignmentList } from '../components/assignment/AssignmentList';
 import { PageContainer } from '../components/layout/PageContainer';
 import { Button } from '../components/ui/button';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
+import {
+  selectCurrentCourseDetail,
+  selectCurrentCourseError,
+  selectCurrentCourseId,
+  selectCurrentCourseStatus,
+} from '../store/selectors';
 import { fetchCourseDetailData } from '../store/thunks';
 
 export function CoursePage() {
   const { courseId } = useParams<{ courseId: string }>();
   const dispatch = useAppDispatch();
-  const courseDetail = useAppSelector((state) => state.courses.currentCourse);
-  const status = useAppSelector((state) => state.courses.currentCourseStatus);
-  const error = useAppSelector((state) => state.courses.currentCourseError);
-  const currentCourseId = useAppSelector(
-    (state) => state.courses.currentCourseId,
-  );
+  const courseDetail = useAppSelector(selectCurrentCourseDetail);
+  const status = useAppSelector(selectCurrentCourseStatus);
+  const error = useAppSelector(selectCurrentCourseError);
+  const currentCourseId = useAppSelector(selectCurrentCourseId);
 
   useEffect(() => {
     if (courseId) {

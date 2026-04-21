@@ -12,12 +12,16 @@ import {
 } from '../components/ui/card';
 import { assignmentStatusMap } from '../lib/assignmentStatus';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
+import {
+  selectProgressEntries,
+  selectProgressStatus,
+} from '../store/selectors';
 import { fetchProgressData } from '../store/thunks';
 
 export function ProgressPage() {
   const dispatch = useAppDispatch();
-  const progress = useAppSelector((state) => state.assignments.progress);
-  const status = useAppSelector((state) => state.assignments.progressStatus);
+  const progress = useAppSelector(selectProgressEntries);
+  const status = useAppSelector(selectProgressStatus);
 
   useEffect(() => {
     if (status === 'idle') {

@@ -67,7 +67,7 @@ export const logoutUser = createAppAsyncThunk(
 );
 
 export const fetchDashboardData = createAppAsyncThunk(
-  'courses/fetchDashboard',
+  'dashboard/fetchDashboard',
   async (_, { rejectWithValue }) => {
     try {
       return await learningApi.fetchDashboard();
@@ -75,14 +75,10 @@ export const fetchDashboardData = createAppAsyncThunk(
       return rejectWithValue(toApiError(error));
     }
   },
-  {
-    condition: (_, { getState }) =>
-      getState().courses.dashboardStatus === 'idle',
-  },
 );
 
 export const fetchCourseDetailData = createAppAsyncThunk(
-  'courses/fetchCourseDetail',
+  'course/fetchCourseDetail',
   async (courseId: string, { rejectWithValue }) => {
     try {
       return await learningApi.fetchCourseDetail(courseId);
@@ -90,53 +86,16 @@ export const fetchCourseDetailData = createAppAsyncThunk(
       return rejectWithValue(toApiError(error));
     }
   },
-  {
-    condition: (courseId, { getState }) => {
-      const { currentCourseId, currentCourseStatus } = getState().courses;
-
-      if (currentCourseStatus === 'loading' && currentCourseId === courseId) {
-        return false;
-      }
-
-      if (currentCourseStatus === 'succeeded' && currentCourseId === courseId) {
-        return false;
-      }
-
-      return true;
-    },
-  },
 );
 
 export const fetchAssignmentDetailData = createAppAsyncThunk(
-  'assignments/fetchAssignmentDetail',
+  'assignment/fetchAssignmentDetail',
   async (assignmentId: string, { rejectWithValue }) => {
     try {
       return await learningApi.fetchAssignmentDetail(assignmentId);
     } catch (error) {
       return rejectWithValue(toApiError(error));
     }
-  },
-  {
-    condition: (assignmentId, { getState }) => {
-      const { currentAssignmentId, currentAssignmentStatus } =
-        getState().assignments;
-
-      if (
-        currentAssignmentStatus === 'loading' &&
-        currentAssignmentId === assignmentId
-      ) {
-        return false;
-      }
-
-      if (
-        currentAssignmentStatus === 'succeeded' &&
-        currentAssignmentId === assignmentId
-      ) {
-        return false;
-      }
-
-      return true;
-    },
   },
 );
 
@@ -148,9 +107,6 @@ export const fetchProfileData = createAppAsyncThunk(
     } catch (error) {
       return rejectWithValue(toApiError(error));
     }
-  },
-  {
-    condition: (_, { getState }) => getState().profile.status === 'idle',
   },
 );
 
@@ -166,17 +122,13 @@ export const saveProfileData = createAppAsyncThunk(
 );
 
 export const fetchProgressData = createAppAsyncThunk(
-  'assignments/fetchProgress',
+  'progress/fetchProgress',
   async (_, { rejectWithValue }) => {
     try {
       return await learningApi.fetchProgress();
     } catch (error) {
       return rejectWithValue(toApiError(error));
     }
-  },
-  {
-    condition: (_, { getState }) =>
-      getState().assignments.progressStatus === 'idle',
   },
 );
 
@@ -216,16 +168,10 @@ export const updateAssignmentSubmission = createAppAsyncThunk(
 
 export const deleteAssignmentSubmission = createAppAsyncThunk(
   'assignments/deleteSubmission',
-  async (submissionId: string, { getState, rejectWithValue }) => {
-    const currentAssignment = getState().assignments.currentAssignment;
-
+  async (submissionId: string, { rejectWithValue }) => {
     try {
       await learningApi.deleteSubmission(submissionId);
-      return {
-        submissionId,
-        assignmentId: currentAssignment?.assignment.id ?? null,
-        courseId: currentAssignment?.assignment.courseId ?? null,
-      };
+      return submissionId;
     } catch (error) {
       return rejectWithValue(toApiError(error));
     }
