@@ -24,4 +24,7 @@ zip:
         -x "mini-moodle-frontend/node_modules/*" \
            "mini-moodle-frontend/dist/*" \
            "mini-moodle-backend/target/*" \
-           ".git/*"
+           ".git/*" \
+           ".pi/*" \
+           ".venv-pdf/*" \
+           "openspec/*"
