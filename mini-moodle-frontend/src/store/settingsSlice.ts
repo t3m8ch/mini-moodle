@@ -21,6 +21,7 @@ import {
   saveProfileData,
   updateAssignmentSubmission,
 } from './thunks';
+import { sessionExpired } from './userSlice';
 
 const trackedThunks = [
   fetchCurrentUser,
@@ -59,6 +60,12 @@ function isSilentBootstrapError(action: UnknownAction) {
   );
 }
 
+function isInterceptorHandledError(action: UnknownAction) {
+  return Boolean(
+    (action as { payload?: ApiErrorResponse }).payload?.handledByInterceptor,
+  );
+}
+
 export const settingsSlice = createSlice({
   name: 'settings',
   initialState,
@@ -68,9 +75,11 @@ export const settingsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(logoutUser.fulfilled, (state) => {
-      state.pendingRequests = 0;
-    });
+    builder
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.pendingRequests = 0;
+      })
+      .addCase(sessionExpired, () => initialState);
 
     builder
       .addMatcher(isPending(...trackedThunks), (state) => {
@@ -82,7 +91,10 @@ export const settingsSlice = createSlice({
       .addMatcher(isRejected(...trackedThunks), (state, action) => {
         decrementPending(state);
 
-        if (isSilentBootstrapError(action)) {
+        if (
+          isSilentBootstrapError(action) ||
+          isInterceptorHandledError(action)
+        ) {
           return;
         }
 

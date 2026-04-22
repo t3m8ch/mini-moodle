@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { ApiErrorResponse } from '../api/client';
 import type { AssignmentDetail } from '../types/assignment';
 import type { ResourceStatus } from './resourceStatus';
+import { sessionExpired } from './userSlice';
 import { fetchAssignmentDetailData, logoutUser } from './thunks';
 
 interface AssignmentState {
@@ -38,7 +39,8 @@ export const assignmentSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload ?? null;
       })
-      .addCase(logoutUser.fulfilled, () => initialState);
+      .addCase(logoutUser.fulfilled, () => initialState)
+      .addCase(sessionExpired, () => initialState);
   },
 });
 

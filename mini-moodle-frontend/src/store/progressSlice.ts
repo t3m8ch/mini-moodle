@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { ApiErrorResponse } from '../api/client';
 import type { ProgressEntry } from '../types/assignment';
 import type { ResourceStatus } from './resourceStatus';
+import { sessionExpired } from './userSlice';
 import { fetchProgressData, logoutUser } from './thunks';
 
 interface ProgressState {
@@ -34,7 +35,8 @@ export const progressSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload ?? null;
       })
-      .addCase(logoutUser.fulfilled, () => initialState);
+      .addCase(logoutUser.fulfilled, () => initialState)
+      .addCase(sessionExpired, () => initialState);
   },
 });
 

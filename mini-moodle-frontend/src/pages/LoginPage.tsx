@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import {
   Card,
@@ -14,11 +14,8 @@ import { loginUser } from '../store/thunks';
 
 export function LoginPage() {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const userStatus = useAppSelector((state) => state.user.status);
-  const authRequestStatus = useAppSelector(
-    (state) => state.user.authRequestStatus,
+  const authActionStatus = useAppSelector(
+    (state) => state.user.authActionStatus,
   );
 
   const [formState, setFormState] = useState({
@@ -26,20 +23,11 @@ export function LoginPage() {
     password: 'password123',
   });
 
-  if (userStatus === 'authenticated') {
-    const from = (location.state as { from?: { pathname?: string } } | null)
-      ?.from?.pathname;
-    return <Navigate replace to={from ?? '/dashboard'} />;
-  }
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
       await dispatch(loginUser(formState)).unwrap();
-      const from = (location.state as { from?: { pathname?: string } } | null)
-        ?.from?.pathname;
-      navigate(from ?? '/dashboard', { replace: true });
     } catch {
       // Global error UI is rendered by CommonWrapper.
     }
@@ -100,10 +88,10 @@ export function LoginPage() {
             </div>
             <Button
               className="w-full"
-              disabled={authRequestStatus === 'loading'}
+              disabled={authActionStatus === 'loading'}
               type="submit"
             >
-              {authRequestStatus === 'loading' ? 'Входим…' : 'Войти'}
+              {authActionStatus === 'loading' ? 'Входим…' : 'Войти'}
             </Button>
           </form>
 

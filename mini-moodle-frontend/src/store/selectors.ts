@@ -2,6 +2,8 @@ import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from './index';
 
 export const selectCurrentUser = (state: RootState) => state.user.currentUser;
+export const selectSessionStatus = (state: RootState) =>
+  state.user.sessionStatus;
 
 export const selectDashboard = (state: RootState) => state.dashboard.data;
 export const selectDashboardStatus = (state: RootState) =>

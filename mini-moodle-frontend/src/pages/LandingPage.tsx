@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
+import { useAppSelector } from '../store/hooks';
 
 export function LandingPage() {
+  const sessionStatus = useAppSelector((state) => state.user.sessionStatus);
+  const currentUser = useAppSelector((state) => state.user.currentUser);
+  const isAuthenticated = sessionStatus === 'authenticated';
   return (
     <div className="min-h-screen bg-linear-to-b from-sky-50 via-white to-slate-100">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-4 text-center">
@@ -26,12 +30,27 @@ export function LandingPage() {
         </div>
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button asChild>
-            <Link to="/login">Войти</Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link to="/register">Регистрация</Link>
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <Button asChild>
+                <Link to="/dashboard">Перейти в кабинет</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link to="/profile">
+                  {currentUser?.fullName ?? 'Открыть профиль'}
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild>
+                <Link to="/login">Войти</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link to="/register">Регистрация</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import {
   Card,
@@ -14,10 +14,8 @@ import { registerUser } from '../store/thunks';
 
 export function RegisterPage() {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const userStatus = useAppSelector((state) => state.user.status);
-  const authRequestStatus = useAppSelector(
-    (state) => state.user.authRequestStatus,
+  const authActionStatus = useAppSelector(
+    (state) => state.user.authActionStatus,
   );
 
   const [formState, setFormState] = useState({
@@ -28,16 +26,11 @@ export function RegisterPage() {
     password: '',
   });
 
-  if (userStatus === 'authenticated') {
-    return <Navigate replace to="/dashboard" />;
-  }
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
       await dispatch(registerUser(formState)).unwrap();
-      navigate('/dashboard', { replace: true });
     } catch {
       // Global error UI is rendered by CommonWrapper.
     }
@@ -155,10 +148,10 @@ export function RegisterPage() {
             </div>
             <Button
               className="w-full"
-              disabled={authRequestStatus === 'loading'}
+              disabled={authActionStatus === 'loading'}
               type="submit"
             >
-              {authRequestStatus === 'loading'
+              {authActionStatus === 'loading'
                 ? 'Создаём аккаунт…'
                 : 'Создать аккаунт'}
             </Button>

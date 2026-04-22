@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { ApiErrorResponse } from '../api/client';
 import type { CourseDetail } from '../types/course';
 import type { ResourceStatus } from './resourceStatus';
+import { sessionExpired } from './userSlice';
 import { fetchCourseDetailData, logoutUser } from './thunks';
 
 interface CourseState {
@@ -38,7 +39,8 @@ export const courseSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload ?? null;
       })
-      .addCase(logoutUser.fulfilled, () => initialState);
+      .addCase(logoutUser.fulfilled, () => initialState)
+      .addCase(sessionExpired, () => initialState);
   },
 });
 

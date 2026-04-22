@@ -1,10 +1,14 @@
 import { AlertTriangle, X } from 'lucide-react';
-import { Outlet } from 'react-router-dom';
+import type { ReactNode } from 'react';
 import { Button } from '../ui/button';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { clearError } from '../../store/settingsSlice';
 
-export function CommonWrapper() {
+interface CommonWrapperProps {
+  children: ReactNode;
+}
+
+export function CommonWrapper({ children }: CommonWrapperProps) {
   const dispatch = useAppDispatch();
   const pendingRequests = useAppSelector(
     (state) => state.settings.pendingRequests,
@@ -19,7 +23,7 @@ export function CommonWrapper() {
         </div>
       ) : null}
 
-      <Outlet />
+      {children}
 
       {error ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 px-4 backdrop-blur-sm">

@@ -97,8 +97,8 @@ function createRootState(): RootState {
   return {
     user: {
       currentUser: null,
-      status: 'guest',
-      authRequestStatus: 'idle',
+      sessionStatus: 'guest',
+      authActionStatus: 'idle',
     },
     settings: {
       pendingRequests: 0,

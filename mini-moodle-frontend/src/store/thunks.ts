@@ -28,7 +28,7 @@ export const fetchCurrentUser = createAppAsyncThunk(
     }
   },
   {
-    condition: (_, { getState }) => getState().user.status === 'idle',
+    condition: (_, { getState }) => getState().user.sessionStatus === 'unknown',
   },
 );
 

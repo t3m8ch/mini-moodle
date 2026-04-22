@@ -48,8 +48,8 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="border-b border-slate-200 bg-white md:h-screen md:w-64 md:border-b-0 md:border-r">
-      <div className="flex flex-row items-center gap-2 overflow-x-auto px-4 py-3 md:flex-col md:items-stretch md:py-6">
+    <aside className="border-b border-slate-200 bg-white md:w-64 md:self-stretch md:border-b-0 md:border-r">
+      <div className="flex flex-row items-center gap-2 overflow-x-auto px-4 py-3 md:h-full md:flex-col md:items-stretch md:py-6">
         {navItems.map((item) => (
           <NavLink
             key={item.label}

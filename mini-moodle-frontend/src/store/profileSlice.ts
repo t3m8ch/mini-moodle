@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { ApiErrorResponse } from '../api/client';
 import type { UserProfile } from '../types/user';
+import { sessionExpired } from './userSlice';
 import { fetchProfileData, logoutUser, saveProfileData } from './thunks';
 
 export type ResourceStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -47,7 +48,8 @@ export const profileSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload ?? null;
       })
-      .addCase(logoutUser.fulfilled, () => initialState);
+      .addCase(logoutUser.fulfilled, () => initialState)
+      .addCase(sessionExpired, () => initialState);
   },
 });
 

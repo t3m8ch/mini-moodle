@@ -124,7 +124,11 @@ function createHarness() {
   const dispatchedActionTypes: string[] = [];
 
   const getState = () => ({
-    user: { currentUser: null, status: 'guest', authRequestStatus: 'idle' },
+    user: {
+      currentUser: null,
+      sessionStatus: 'guest',
+      authActionStatus: 'idle',
+    },
     settings: { pendingRequests: 0, error: null },
     dashboard: { data: null, status: 'idle', error: null },
     course: {

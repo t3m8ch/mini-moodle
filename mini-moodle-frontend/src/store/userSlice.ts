@@ -9,19 +9,25 @@ import {
   saveProfileData,
 } from './thunks';
 
-export type UserStatus = 'idle' | 'loading' | 'authenticated' | 'guest';
+export type SessionStatus = 'unknown' | 'checking' | 'guest' | 'authenticated';
 export type RequestStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
 
 interface UserState {
   currentUser: User | null;
-  status: UserStatus;
-  authRequestStatus: RequestStatus;
+  sessionStatus: SessionStatus;
+  authActionStatus: RequestStatus;
 }
 
 const initialState: UserState = {
   currentUser: null,
-  status: 'idle',
-  authRequestStatus: 'idle',
+  sessionStatus: 'unknown',
+  authActionStatus: 'idle',
+};
+
+const guestState: UserState = {
+  currentUser: null,
+  sessionStatus: 'guest',
+  authActionStatus: 'idle',
 };
 
 function areUsersEqual(left: User | null, right: User) {
@@ -31,43 +37,47 @@ function areUsersEqual(left: User | null, right: User) {
 export const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  reducers: {
+    sessionExpired() {
+      return guestState;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCurrentUser.pending, (state) => {
-        state.status = 'loading';
+        state.sessionStatus = 'checking';
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.currentUser = action.payload.user;
-        state.status = 'authenticated';
+        state.sessionStatus = 'authenticated';
       })
       .addCase(fetchCurrentUser.rejected, (state) => {
         state.currentUser = null;
-        state.status = 'guest';
+        state.sessionStatus = 'guest';
       })
       .addCase(loginUser.pending, (state) => {
-        state.authRequestStatus = 'loading';
+        state.authActionStatus = 'loading';
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.currentUser = action.payload.user;
-        state.status = 'authenticated';
-        state.authRequestStatus = 'succeeded';
+        state.sessionStatus = 'authenticated';
+        state.authActionStatus = 'succeeded';
       })
       .addCase(loginUser.rejected, (state) => {
-        state.authRequestStatus = 'failed';
-        state.status = 'guest';
+        state.authActionStatus = 'failed';
+        state.sessionStatus = 'guest';
       })
       .addCase(registerUser.pending, (state) => {
-        state.authRequestStatus = 'loading';
+        state.authActionStatus = 'loading';
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.currentUser = action.payload.user;
-        state.status = 'authenticated';
-        state.authRequestStatus = 'succeeded';
+        state.sessionStatus = 'authenticated';
+        state.authActionStatus = 'succeeded';
       })
       .addCase(registerUser.rejected, (state) => {
-        state.authRequestStatus = 'failed';
-        state.status = 'guest';
+        state.authActionStatus = 'failed';
+        state.sessionStatus = 'guest';
       })
       .addCase(saveProfileData.fulfilled, (state, action) => {
         const nextUser: User = {
@@ -81,8 +91,9 @@ export const userSlice = createSlice({
           state.currentUser = nextUser;
         }
       })
-      .addCase(logoutUser.fulfilled, () => initialState);
+      .addCase(logoutUser.fulfilled, () => guestState);
   },
 });
 
+export const { sessionExpired } = userSlice.actions;
 export const userReducer = userSlice.reducer;
