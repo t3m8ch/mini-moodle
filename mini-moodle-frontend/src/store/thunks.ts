@@ -1,7 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import * as authApi from '../api/auth';
 import * as learningApi from '../api/learning';
-import { toApiError, type ApiErrorResponse } from '../api/client';
+import {
+  toApiError,
+  type ApiErrorKind,
+  type ApiErrorResponse,
+} from '../api/client';
 import type {
   CreateSubmissionRequest,
   UpdateSubmissionRequest,
@@ -24,7 +28,12 @@ export const fetchCurrentUser = createAppAsyncThunk(
     try {
       return await authApi.fetchCurrentUser();
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      const apiError = toApiError(error);
+      return rejectWithValue(
+        apiError.statusCode === 401
+          ? { ...apiError, kind: 'bootstrap_unauthorized' }
+          : apiError,
+      );
     }
   },
   {
@@ -61,7 +70,7 @@ export const logoutUser = createAppAsyncThunk(
       await authApi.logout();
       return null;
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      return rejectWithValue(authRedirectedError(toApiError(error)));
     }
   },
 );
@@ -72,7 +81,7 @@ export const fetchDashboardData = createAppAsyncThunk(
     try {
       return await learningApi.fetchDashboard();
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      return rejectWithValue(authRedirectedError(toApiError(error)));
     }
   },
 );
@@ -83,7 +92,7 @@ export const fetchCourseDetailData = createAppAsyncThunk(
     try {
       return await learningApi.fetchCourseDetail(courseId);
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      return rejectWithValue(authRedirectedError(toApiError(error)));
     }
   },
 );
@@ -94,7 +103,7 @@ export const fetchAssignmentDetailData = createAppAsyncThunk(
     try {
       return await learningApi.fetchAssignmentDetail(assignmentId);
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      return rejectWithValue(authRedirectedError(toApiError(error)));
     }
   },
 );
@@ -105,7 +114,7 @@ export const fetchProfileData = createAppAsyncThunk(
     try {
       return await learningApi.fetchProfile();
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      return rejectWithValue(authRedirectedError(toApiError(error)));
     }
   },
 );
@@ -116,7 +125,7 @@ export const saveProfileData = createAppAsyncThunk(
     try {
       return await learningApi.updateProfile(payload);
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      return rejectWithValue(authRedirectedError(toApiError(error)));
     }
   },
 );
@@ -127,7 +136,7 @@ export const fetchProgressData = createAppAsyncThunk(
     try {
       return await learningApi.fetchProgress();
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      return rejectWithValue(authRedirectedError(toApiError(error)));
     }
   },
 );
@@ -144,7 +153,7 @@ export const createAssignmentSubmission = createAppAsyncThunk(
         payload.data,
       );
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      return rejectWithValue(authRedirectedError(toApiError(error)));
     }
   },
 );
@@ -161,7 +170,7 @@ export const updateAssignmentSubmission = createAppAsyncThunk(
         payload.data,
       );
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      return rejectWithValue(authRedirectedError(toApiError(error)));
     }
   },
 );
@@ -173,7 +182,13 @@ export const deleteAssignmentSubmission = createAppAsyncThunk(
       await learningApi.deleteSubmission(submissionId);
       return submissionId;
     } catch (error) {
-      return rejectWithValue(toApiError(error));
+      return rejectWithValue(authRedirectedError(toApiError(error)));
     }
   },
 );
+
+function authRedirectedError(apiError: ApiErrorResponse) {
+  return apiError.statusCode === 401
+    ? { ...apiError, kind: 'auth_redirected' as ApiErrorKind }
+    : apiError;
+}

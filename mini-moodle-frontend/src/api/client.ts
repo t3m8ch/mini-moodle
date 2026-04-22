@@ -1,15 +1,17 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 export interface ApiSuccess<T> {
   status: 'OK';
   payload: T | null;
 }
 
+export type ApiErrorKind = 'bootstrap_unauthorized' | 'auth_redirected';
+
 export interface ApiErrorResponse {
   status: 'ERROR';
   msg: string;
   statusCode: number;
-  handledByInterceptor?: boolean;
+  kind?: ApiErrorKind;
 }
 
 export const apiClient = axios.create({
@@ -38,11 +40,6 @@ export async function unwrapNullablePayload<T>(
 
 export function toApiError(error: unknown): ApiErrorResponse {
   if (axios.isAxiosError<{ msg?: string }>(error)) {
-    const handledByInterceptor = Boolean(
-      (error as AxiosError & { __sessionRedirectHandled?: boolean })
-        .__sessionRedirectHandled,
-    );
-
     return {
       status: 'ERROR',
       msg:
@@ -50,7 +47,6 @@ export function toApiError(error: unknown): ApiErrorResponse {
         error.message ??
         'Не удалось выполнить запрос к серверу',
       statusCode: error.response?.status ?? 500,
-      handledByInterceptor,
     };
   }
 

@@ -22,25 +22,21 @@ export function useAxiosInterceptorBridge() {
 
     const interceptorId = apiClient.interceptors.response.use(
       (response) => response,
-      (error: AxiosError & { __sessionRedirectHandled?: boolean }) => {
+      (error: AxiosError) => {
         const shouldHandleSessionExpired =
           error.response?.status === 401 &&
           !AUTH_REDIRECT_EXCLUDED_PATHS.some((path) =>
             error.config?.url?.startsWith(path),
           );
 
-        if (shouldHandleSessionExpired) {
-          error.__sessionRedirectHandled = true;
-
-          if (!sessionRedirectInProgress) {
-            sessionRedirectInProgress = true;
-            dispatch(clearError());
-            dispatch(sessionExpired());
-            navigate('/login', {
-              replace: true,
-              state: { from: { pathname: location.pathname } },
-            });
-          }
+        if (shouldHandleSessionExpired && !sessionRedirectInProgress) {
+          sessionRedirectInProgress = true;
+          dispatch(clearError());
+          dispatch(sessionExpired());
+          navigate('/login', {
+            replace: true,
+            state: { from: { pathname: location.pathname } },
+          });
         }
 
         return Promise.reject(error);

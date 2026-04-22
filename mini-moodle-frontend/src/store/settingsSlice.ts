@@ -53,17 +53,10 @@ function decrementPending(state: SettingsState) {
   state.pendingRequests = Math.max(0, state.pendingRequests - 1);
 }
 
-function isSilentBootstrapError(action: UnknownAction) {
-  return (
-    action.type === fetchCurrentUser.rejected.type &&
-    (action as { payload?: ApiErrorResponse }).payload?.statusCode === 401
-  );
-}
+function shouldIgnoreError(action: UnknownAction) {
+  const kind = (action as { payload?: ApiErrorResponse }).payload?.kind;
 
-function isInterceptorHandledError(action: UnknownAction) {
-  return Boolean(
-    (action as { payload?: ApiErrorResponse }).payload?.handledByInterceptor,
-  );
+  return kind === 'bootstrap_unauthorized' || kind === 'auth_redirected';
 }
 
 export const settingsSlice = createSlice({
@@ -91,10 +84,7 @@ export const settingsSlice = createSlice({
       .addMatcher(isRejected(...trackedThunks), (state, action) => {
         decrementPending(state);
 
-        if (
-          isSilentBootstrapError(action) ||
-          isInterceptorHandledError(action)
-        ) {
+        if (shouldIgnoreError(action)) {
           return;
         }
 
