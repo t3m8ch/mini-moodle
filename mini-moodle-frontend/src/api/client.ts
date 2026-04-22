@@ -8,7 +8,6 @@ export interface ApiSuccess<T> {
 export interface ApiErrorResponse {
   status: 'ERROR';
   msg: string;
-  details?: unknown;
   statusCode: number;
   handledByInterceptor?: boolean;
 }
@@ -38,7 +37,7 @@ export async function unwrapNullablePayload<T>(
 }
 
 export function toApiError(error: unknown): ApiErrorResponse {
-  if (axios.isAxiosError<{ msg?: string; details?: unknown }>(error)) {
+  if (axios.isAxiosError<{ msg?: string }>(error)) {
     const handledByInterceptor = Boolean(
       (error as AxiosError & { __sessionRedirectHandled?: boolean })
         .__sessionRedirectHandled,
@@ -50,7 +49,6 @@ export function toApiError(error: unknown): ApiErrorResponse {
         error.response?.data?.msg ??
         error.message ??
         'Не удалось выполнить запрос к серверу',
-      details: error.response?.data?.details,
       statusCode: error.response?.status ?? 500,
       handledByInterceptor,
     };
